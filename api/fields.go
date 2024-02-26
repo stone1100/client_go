@@ -30,6 +30,36 @@ type Field interface {
 	write(builder *series.RowBuilder) error
 }
 
+// exemplar represents an exemplar, which is a sample input measurement.
+// Exemplars also hold information about the environment when the measurement
+// was recorded, for example the span and trace ID of the active span when the
+// exemplar was recorded.
+type exemplar struct {
+	name     string
+	traceID  string
+	spanID   string
+	duration int64
+}
+
+// NewExemplar creates an exemplar.
+func NewExemplar(name, traceID, spanID string, duration int64) Field {
+	return &exemplar{
+		name:     name,
+		traceID:  traceID,
+		spanID:   spanID,
+		duration: duration,
+	}
+}
+
+// write exemplar data into broker row builder(flat protocol)
+func (e *exemplar) write(builder *series.RowBuilder) error {
+	return builder.AddExemplar(internal.String2ByteSlice(e.name),
+		internal.String2ByteSlice(e.traceID),
+		internal.String2ByteSlice(e.spanID),
+		e.duration,
+	)
+}
+
 // simpleField represents simple field like(sum/min/max/last etc.)
 type simpleField struct {
 	name      string                        // field name

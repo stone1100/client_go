@@ -54,6 +54,8 @@ func WriteData() {
 		// write memory data
 		w.AddPoint(context.TODO(), api.NewPoint("memory").
 			AddTag("host", "host1").
+			AddField(api.NewExemplar("m_exemplar", "trace1", "span1", 10)).
+			AddField(api.NewExemplar("c_exemplar", "trace2", "span2", 300)).
 			AddField(api.NewLast("used", 10.0)).
 			AddField(api.NewLast("total", 24.0)))
 	}
